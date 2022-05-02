@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <_LottieId>Lottie</_LottieId>
+  </PropertyGroup>
+
+  <Target Name="_LottieResolveNativeReferences" BeforeTargets="ResolveNativeReferences" Condition="('$(TargetFrameworks)' == '' And '$(TargetFramework)' == '') Or '$(IsBindingProject)' == 'true'">
+    <PropertyGroup>
+      <_LottieXCFArch Condition="'$(_PlatformName)' == 'iOS' And '$(_SdkIsSimulator)' == 'False'">ios-arm64_armv7</_LottieXCFArch>
+      <_LottieXCFArch Condition="'$(_PlatformName)' == 'iOS' And '$(_SdkIsSimulator)' == 'True'">ios-arm64_i386_x86_64-simulator</_LottieXCFArch>
+      <_LottieXCFArch Condition="'$(_PlatformName)' == 'tvOS' And '$(_SdkIsSimulator)' == 'False'">tvos-arm64</_LottieXCFArch>
+      <_LottieXCFArch Condition="'$(_PlatformName)' == 'tvOS' And '$(_SdkIsSimulator)' == 'True'">tvos-arm64_x86_64-simulator</_LottieXCFArch>
+      <_LottieXCFArch Condition="'$(_PlatformName)' == 'macOS'">macos-arm64_x86_64</_LottieXCFArch>
+      <_LottieXCFArch Condition="'$(_PlatformName)' == 'MacCatalyst'">ios-arm64_x86_64-maccatalyst</_LottieXCFArch>
+    </PropertyGroup>
+
+    <ItemGroup Condition="('$(OutputType)' != 'Library' OR '$(IsAppExtension)' == 'True')">
+      <_NativeReference Include="$(DeviceSpecificIntermediateOutputPath)mtouch-cache\Lottie.iOS.resources\Lottie.xcframework\$(_LottieXCFArch)\Lottie.framework">
+        <_Id>$(_LottieId)</_Id>
+      </_NativeReference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <_NativeReference Update="@(_NativeReference)" Condition="'%(_NativeReference._Id)' == '$(_LottieId)'">
+        <Kind>Framework</Kind>
+        <IsCxx>True</IsCxx>
+        <SmartLink>True</SmartLink>
+        <ForceLoad>True</ForceLoad>
+        <LinkerFlags>-ObjC</LinkerFlags>
+      </_NativeReference>
+      <NativeReference Include="@(_NativeReference)" />
+    </ItemGroup>
+
+    <Ditto
+      SessionId="$(BuildSessionId)"
+      Condition="'$(IsMacEnabled)' == 'true' And ('$(OutputType)' != 'Library' Or '$(IsAppExtension)' == 'True')"
+      Source="$(MSBuildThisFileDirectory)..\lib\xamarinios10\Lottie.iOS.resources.zip"
+      Destination="$(DeviceSpecificOutputPath)Lottie.iOS.resources.zip"
+    />
+  </Target>
+</Project>
